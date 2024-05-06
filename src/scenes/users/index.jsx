@@ -1,33 +1,55 @@
+import React, { useState } from "react";
+
 import { Box } from "@mui/material";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { DataGrid,GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataContacts } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useTheme} from "@mui/material";
+import { useGetUserQuery } from "../../state/api";
 
-const Contacts = () => {
+
+const Users = () => {
   const theme = useTheme();
+
+  // values to be sent to the backend
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
+  const [with_count] = useState(true);
+
   const colors = tokens(theme.palette.mode);
+  const { data, isLoading } = useGetUserQuery({
+    page,
+    limit,
+    with_count,
+  });
+  console.log("data", data);
 
   const columns = [
-    { field: "id", headerName: "ID", flex: 0.5 },
-    { field: "registrarId", headerName: "Registrar ID" },
-    {
-      field: "name",
-      headerName: "Name",
-      flex: 1,
-      cellClassName: "name-column--cell",
+    { 
+      field: "id", 
+    headerName: "ID",
+     flex: 0.5 
     },
     {
-      field: "age",
-      headerName: "Age",
-      type: "number",
+      field: "user_name",
+      headerName: "UserName",
+      flex: 1,
+      cellClassName: "username-column--cell",
+    },
+    {
+      field: "pass_word",
+      headerName: "Password",
       headerAlign: "left",
       align: "left",
     },
     {
-      field: "phone",
-      headerName: "Phone Number",
+      field: "first_name",
+      headerName: "First Name",
+      flex: 1,
+    },
+    {
+      field: "last_name",
+      headerName: "LastName",
       flex: 1,
     },
     {
@@ -36,18 +58,28 @@ const Contacts = () => {
       flex: 1,
     },
     {
-      field: "address",
-      headerName: "Address",
+      field: "phone",
+      headerName: "Phone",
       flex: 1,
     },
     {
-      field: "city",
-      headerName: "City",
+      field: "permission",
+      headerName: "Permission",
       flex: 1,
     },
     {
-      field: "zipCode",
-      headerName: "Zip Code",
+      field: "status",
+      headerName: "Status",
+      flex: 1,
+    },
+    {
+      field: "created_at",
+      headerName: "Created At",
+      flex: 1,
+    },
+    {
+      field: "updated_at",
+      headerName: "Updated At",
       flex: 1,
     },
   ];
@@ -55,8 +87,8 @@ const Contacts = () => {
   return (
     <Box m="20px">
       <Header
-        title="CONTACTS"
-        subtitle="List of Contacts for Future Reference"
+        title="USERS"
+        subtitle="List of Users for Future Reference"
       />
       <Box
         m="40px 0 0 0"
@@ -68,7 +100,7 @@ const Contacts = () => {
           "& .MuiDataGrid-cell": {
             borderBottom: "none",
           },
-          "& .name-column--cell": {
+          "& .username-column--cell": {
             color: colors.greenAccent[300],
           },
           "& .MuiDataGrid-columnHeaders": {
@@ -91,7 +123,16 @@ const Contacts = () => {
         }}
       >
         <DataGrid
-          rows={mockDataContacts}
+          pagination
+          page={page}
+          pageSize={limit}
+          paginationMode="server"
+          onPageChange={(newPage) => setPage(newPage)}
+          onPageSizeChange={(newPageSize) => setLimit(newPageSize)}
+          loading={isLoading || !data}
+          getRowId={(row) => row.id}
+          rows={(data && data.data) || []}
+          // rows={[]}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
         />
@@ -100,4 +141,4 @@ const Contacts = () => {
   );
 };
 
-export default Contacts;
+export default Users;
